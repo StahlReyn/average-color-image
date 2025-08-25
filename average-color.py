@@ -1,11 +1,14 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import glob
+import re
+
+REGEX_TIME = r'.* (\d*)\..*' # something 1234.fileextension
 
 def get_average_color(filename, show = False):
     img = cv2.imread(filename)
     dst = filter_noise_1(img)
-    print(img)
 
     if (show): 
         display_image(img, dst)
@@ -34,8 +37,26 @@ def display_image(img, dst):
     plt.xticks([]), plt.yticks([])
     plt.show()
 
+def get_images(path):
+    imgs = glob.glob(path + "/*.png", recursive=False)
+
+    return imgs
+
+def get_time_from_path(path):
+    match = re.search(REGEX_TIME, path)
+    if match is None:
+        return path
+    return match.group(1)
+
 def main():
-    print(get_average_color('test1.jpg'))
-    print(get_average_color('test2.png'))
+    path = "images"
+    imgs = get_images(path)
+    
+    print("time,r,g,b")
+    for img in imgs:
+        time = get_time_from_path(img)
+        color = get_average_color(img)
+        # print(img + ": " + str(color))
+        print(time + "," + str(color[0]) + "," + str(color[1]) + "," + str(color[2]))
 
 main()
