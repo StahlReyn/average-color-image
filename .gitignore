@@ -1,2 +1,4 @@
-/videos
-/images
+*.png
+*.jpg
+*.csv
+*.mp4
