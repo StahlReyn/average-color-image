@@ -5,16 +5,21 @@ import glob
 import re
 
 REGEX_TIME = r'.* (\d*)\..*' # something 1234.fileextension
+DO_FILTER = False
 
-def get_average_color(filename, show = False):
+def get_average_color_file(filename):
+    img = cv2.imread(filename)
+    return get_average_color(img)
+
+def get_average_color_file_filtered(filename, show = False):
     img = cv2.imread(filename)
     dst = filter_noise_1(img)
-
     if (show): 
         display_image(img, dst)
+    return get_average_color(dst)
 
-    value = np.mean(dst, axis=(0,1))
-    return value
+def get_average_color(img):
+    return np.mean(img, axis=(0,1))
 
 def filter_noise_1(img):
     dst = cv2.medianBlur(img, 9)
@@ -51,12 +56,15 @@ def get_time_from_path(path):
 def main():
     path = "images"
     imgs = get_images(path)
-    
+
     print("time,r,g,b")
     for img in imgs:
         time = get_time_from_path(img)
-        color = get_average_color(img)
-        # print(img + ": " + str(color))
+        color = None
+        if DO_FILTER:
+            color = get_average_color_file_filtered(img)
+        else:
+            color = get_average_color_file(img)
         print(time + "," + str(color[0]) + "," + str(color[1]) + "," + str(color[2]))
 
 main()
