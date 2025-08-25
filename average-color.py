@@ -5,7 +5,6 @@ import glob
 import re
 
 REGEX_TIME = r'.* (\d*)\..*' # something 1234.fileextension
-DO_FILTER = False
 
 def get_average_color_file(filename):
     img = cv2.imread(filename)
@@ -51,20 +50,33 @@ def get_time_from_path(path):
     match = re.search(REGEX_TIME, path)
     if match is None:
         return path
-    return match.group(1)
+    time_str = match.group(1)
+    return get_sec(time_str)
+
+def get_sec(time_str):
+    h = time_str[0:2]
+    m = time_str[2:4]
+    s = time_str[4:6]
+    return int(h) * 3600 + int(m) * 60 + int(s)
 
 def main():
-    path = "images"
-    imgs = get_images(path)
+    DO_FILTER = False
+    FILEPATH = "images"
 
-    print("time,r,g,b")
-    for img in imgs:
-        time = get_time_from_path(img)
-        color = None
-        if DO_FILTER:
-            color = get_average_color_file_filtered(img)
-        else:
-            color = get_average_color_file(img)
-        print(time + "," + str(color[0]) + "," + str(color[1]) + "," + str(color[2]))
+    imgs = get_images(FILEPATH)
+
+    with open("output.csv", "wb") as file:
+        file.write('time,r,g,b\n'.encode())
+        for img in imgs:
+            time = get_time_from_path(img)
+
+            color = None
+            if DO_FILTER:
+                color = get_average_color_file_filtered(img)
+            else:
+                color = get_average_color_file(img)
+            
+            file.write((str(time) + "," + str(color[0]) + "," + str(color[1]) + "," + str(color[2]) + "\n").encode())
+        print("Done!")
 
 main()
